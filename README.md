@@ -3,7 +3,8 @@ iszero [![Build Status](https://secure.travis-ci.org/101loops/iszero.png)](https
 
 This Go package checks if a value is equal to its type's zero value.
 
-### Example
+
+## Example
 ```go
 iszero.Value("") // true
 iszero.Value(42) // false
@@ -15,11 +16,13 @@ iszero.Value(reflect.ValueOf("")) // true
 iszero.Value(reflect.ValueOf(42)) // false
 ```
 
-### Installation
-`go get github.com/101loops/iszero`
+## Install
+```bash
+go get github.com/101loops/iszero
+```
 
-### Documentation
+## Documentation
 [godoc.org](http://godoc.org/github.com/101loops/iszero)
 
-### License
+## License
 MIT (see LICENSE).
