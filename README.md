@@ -3,6 +3,15 @@ iszero [![Build Status](https://secure.travis-ci.org/101loops/iszero.png)](https
 
 This Go package checks if a value is equal to its type's zero value.
 
+### Example
+```go
+iszero.Value("") // true
+iszero.Value(42) // false
+
+iszero.Value(time.Time{}) // true
+iszero.Value(time.Now())  // false
+```
+
 ### Installation
 `go get github.com/101loops/iszero`
 
