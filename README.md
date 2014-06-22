@@ -10,6 +10,9 @@ iszero.Value(42) // false
 
 iszero.Value(time.Time{}) // true
 iszero.Value(time.Now())  // false
+
+iszero.Value(reflect.ValueOf("")) // true
+iszero.Value(reflect.ValueOf(42)) // false
 ```
 
 ### Installation
