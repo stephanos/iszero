@@ -8,46 +8,31 @@ func Value(src interface{}) bool {
 		return true
 	}
 
-	switch v := src.(type) {
-	case bool:
-		return (v == false)
-	case string:
-		return (v == "")
-	case int:
-		return (v == int(0))
-	case int8:
-		return (v == int8(0))
-	case int16:
-		return (v == int16(0))
-	case int32:
-		return (v == int32(0))
-	case int64:
-		return (v == int64(0))
-	case uint:
-		return (v == uint(0))
-	case uint8:
-		return (v == uint8(0))
-	case uint16:
-		return (v == uint16(0))
-	case uint32:
-		return (v == uint32(0))
-	case uint64:
-		return (v == uint64(0))
-	case float32:
-		return (v == float32(0))
-	case float64:
-		return (v == float64(0))
-	case reflect.Value:
-		return checkReflectValue(src, v)
-	default:
-		return checkReflectValue(src, reflect.ValueOf(src))
+	if val, ok := src.(reflect.Value); ok {
+		return checkReflectValue(nil, val)
 	}
+
+	return checkReflectValue(src, reflect.ValueOf(src))
 }
 
 func checkReflectValue(src interface{}, val reflect.Value) bool {
+	if !val.IsValid() {
+		return true
+	}
+
 	kind := val.Kind()
 	switch kind {
-	case reflect.Func, reflect.Map, reflect.Slice:
+	case reflect.String:
+		return val.Len() == 0
+	case reflect.Bool:
+		return val.Bool() == false
+	case reflect.Float32, reflect.Float64:
+		return val.Float() == 0
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return val.Int() == 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return val.Uint() == 0
+	case reflect.Ptr, reflect.Chan, reflect.Func, reflect.Interface, reflect.Slice, reflect.Map:
 		return val.IsNil()
 	case reflect.Array:
 		z := true
@@ -55,13 +40,15 @@ func checkReflectValue(src interface{}, val reflect.Value) bool {
 			z = z && Value(val.Index(i))
 		}
 		return z
-	case reflect.Interface, reflect.Ptr:
-		return val.IsNil()
 	default:
+		if src == nil {
+			src = val.Interface()
+		}
+
 		zero := reflect.Zero(val.Type()).Interface()
 		if kind == reflect.Struct {
 			return reflect.DeepEqual(src, zero)
 		}
-		return val.Interface() == zero
+		return src == zero
 	}
 }

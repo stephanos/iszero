@@ -2,6 +2,7 @@ package iszero
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -14,13 +15,14 @@ type MyStruct struct {
 }
 
 var (
+	result bool
+
 	zeroPtr    *string
 	zeroSlice  []int
 	zeroFunc   func() string
 	zeroMap    map[string]string
 	emptyIface interface{}
 	zeroIface  fmt.Stringer
-
 	zeroValues = []interface{}{
 		nil,
 
@@ -73,10 +75,10 @@ var (
 		MyStruct{num: 0},
 		MyStruct{text: MyString("")},
 	}
+	zeroReflectValues = convertToReflectValues(zeroValues)
 
-	nonZeroIface fmt.Stringer = time.Now()
-
-	nonZeroValues = []interface{}{
+	nonZeroIface  fmt.Stringer = time.Now()
+	nonZeroValues              = []interface{}{
 		// bool
 		true,
 
@@ -123,18 +125,50 @@ var (
 		MyStruct{num: 1},
 		time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC),
 	}
+	nonZeroReflectValues = convertToReflectValues(nonZeroValues)
+
+	allValues        = append(zeroValues, nonZeroValues...)
+	allReflectValues = append(zeroReflectValues, nonZeroReflectValues...)
 )
 
 func TestIsZeroCheck(t *testing.T) {
-	for _, value := range zeroValues {
+	for _, value := range append(zeroValues, zeroReflectValues...) {
 		if !Value(value) {
-			t.Errorf("expected '%v' to be recognized as zero value", value)
+			t.Errorf("expected '%v' (%T) to be recognized as zero value", value, value)
 		}
 	}
 
 	for _, value := range nonZeroValues {
 		if Value(value) {
-			t.Errorf("did not expect '%v' to be recognized as zero value", value)
+			t.Errorf("did not expect '%v' (%T) to be recognized as zero value", value, value)
 		}
 	}
+}
+
+func BenchmarkIsZeroCheck(b *testing.B) {
+	benchmark(b, allValues)
+}
+
+func BenchmarkIsZeroCheckReflect(b *testing.B) {
+	benchmark(b, allReflectValues)
+}
+
+func benchmark(b *testing.B, fixture []interface{}) {
+	fixtureLen := len(fixture)
+
+	b.ResetTimer()
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		result = Value(fixture[i%fixtureLen])
+	}
+}
+
+func convertToReflectValues(src []interface{}) []interface{} {
+	out := make([]interface{}, len(src))
+	for _, val := range src {
+		//fmt.Printf("%v: %v\n", i, reflect.ValueOf(val))
+		out = append(out, reflect.ValueOf(val))
+	}
+	return out
 }
