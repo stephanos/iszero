@@ -18,9 +18,5 @@ iszero.Value(time.Now())  // false
 ### Documentation
 [godoc.org](http://godoc.org/github.com/101loops/iszero)
 
-### ToDos
-- benchmark
-- maybe: cache struct zero values
-
 ### License
 MIT (see LICENSE).
