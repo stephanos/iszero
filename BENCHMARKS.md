@@ -1,9 +1,9 @@
 Benchmarks
 ====
 
-### Type assertions of value
+### Type switch
 
-If the passed-in value is not a `reflect.Value` use type assertions. 
+If the passed-in value is not a `reflect.Value` use a type switch. 
 If no match is found, create and check `reflect.Value` value.
 
 ```
